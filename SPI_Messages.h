@@ -9,6 +9,10 @@
 #define REGISTER_READ_RESPONSE 0b0110
 #define REGISTER_WRITE_RESPONSE 0b0100
 #define UD 0b00
+#define SOURCEID0x00 0b00000000
+#define SOURCEID0x01 0b00010000
+#define SOURCEID0x02 0b00100000
+#define SOURCEID0x03 0b00110000
 
 #define CRC_POLY  0x12F
 #define SPI_DATA_LEN_BITS 32
@@ -18,6 +22,7 @@
 #define CRC_SEED 0xFF
 #define MAX_CRC 0xFF
 #define MAX_UINT64_T 0xFFFFFFFFFFFFFFFF
+int list2int(int *list, int n) ;    
 static uint8_t CRC8(uint32_t SPI_data);
 struct Register_Access_Command
   {
@@ -33,3 +38,11 @@ struct Register_Response
 	  uint8_t Register_Data_L;
 	  uint8_t CRC;
   };  
+struct Sensor_Data_Request
+ {
+          uint8_t Command__Fixed_Bits_0;
+          uint8_t Fixed_Bits_1;
+	  uint8_t Fixed_Bits_2;
+	  uint8_t CRC;
+     
+ };
