@@ -1,4 +1,3 @@
-
 #include <stdio.h>
 #include <string.h>
 #include "SPI_Messages.h"
@@ -9,29 +8,12 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <sys/stat.h>
-#define UART_INPUT_MAX_SIZE  4
-  uint8_t RXbuf[UART_INPUT_MAX_SIZE];
-uint8_t Err[]={0xFF,0xFF,0xFF,0xFF};
-char OSD[]={0,0,0,0};
-FILE *fp;
-char *line = NULL;
-size_t len = 0;
-ssize_t readstat;
-const char path1[]="/home/albessonov/accelerometer/ACC_X_05.txt";
-const char path2[]="/home/albessonov/accelerometer/ACC_Y_05.txt";
-uint8_t RCOMMAND0x00=0b10000100;
-uint8_t RCOMMAND0x01=0b11000100;
-uint8_t RCOMMAND0x02=0b10100100;
-uint8_t RCOMMAND0x03=0b11100100;
-ssize_t ctr0=0,ctr1=0,ctr2=0,ctr3=0;
-char *ach0,*ach1,*ach2,*ach3,*end0,*end1,*end2,*end3;
-long int mov0=0,mov1=0,mov2=0,mov3=0,numend0=0,numend1=0,numend2=0,numend3=0;
-int serialDataAvail(const int fd);
+
 int main (void)
 {
 double Num;
 
-unsigned uart1=open("/dev/ttyAMA0",921600);
+unsigned uart1=serialOpen("/dev/ttyAMA0",921600);
 
 struct Register_Access_Command Register_Read={REGISTER_READ_COMMAND,REGISTER_READ_ADDRESS,REGISTER_READ_DATA,0b00000000};
 struct Register_Access_Command Register_Write={REGISTER_WRITE_COMMAND,REGISTER_READ_ADDRESS,REGISTER_READ_DATA,0b00000000};
