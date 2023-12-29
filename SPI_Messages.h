@@ -34,25 +34,23 @@
 #define MAX_CRC 0xFF
 #define MAX_UINT64_T 0xFFFFFFFFFFFFFFFF
 #define UART_INPUT_MAX_SIZE  4
-  uint8_t RXbuf[UART_INPUT_MAX_SIZE];
-uint8_t Err[]={0xFF,0xFF,0xFF,0xFF};
-char OSD[]={0,0,0,0};
-FILE *fp;
+uint8_t RXbuf[UART_INPUT_MAX_SIZE];
+FILE *fp0x0,*fp0x1,*fp0x2,*fp0x3;
 char *line = NULL;
 size_t len = 0;
 ssize_t readstat;
-const char path1[]="/home/albessonov/accelerometer/acceleration_x.txt";
-const char path2[]="/home/albessonov/accelerometer/acceleration_y.txt";
+const char path1[]="/home/albessonov/accelerometer/ACC_X_05.txt";
+const char path2[]="/home/albessonov/accelerometer/ACC_Y_05.txt";
 uint8_t RCOMMAND0x00=0b10000100;
 uint8_t RCOMMAND0x01=0b11000100;
 uint8_t RCOMMAND0x02=0b10100100;
 uint8_t RCOMMAND0x03=0b11100100;
-ssize_t ctr0=0,ctr1=0,ctr2=0,ctr3=0;
+long int ctr0=0,ctr1=0,ctr2=0,ctr3=0;
 char *ach0,*ach1,*ach2,*ach3,*end0,*end1,*end2,*end3;
 long int mov0=0,mov1=0,mov2=0,mov3=0,numend0=0,numend1=0,numend2=0,numend3=0;
-int serialDataAvail(const int fd);  
+int serialDataAvail(const int fd);
 static uint8_t CRC8(uint32_t SPI_data);
-void* poll(void *args) ;
+
 struct Register_Access_Command
   {
 	  uint8_t Command__Fixed_Bits;
@@ -66,14 +64,14 @@ struct Register_Response
 	  uint8_t Register_Data_H;
 	  uint8_t Register_Data_L;
 	  uint8_t CRC;
-  };  
+  };
 struct Sensor_Data_Request
  {
           uint8_t Command__Fixed_Bits_0;
           uint8_t Fixed_Bits_1;
 	  uint8_t Fixed_Bits_2;
 	  uint8_t CRC;
-     
+
  };
  int serialOpen (const char *device, const int baud)
 {
@@ -154,4 +152,33 @@ struct Sensor_Data_Request
   usleep (10000) ;	// 10mS
 
   return fd ;
+}
+int serialDataAvail(const int fd)
+{
+int result;
+if(ioctl(fd,FIONREAD, &result)==-1)
+   return -1;
+
+return result;
+}
+static uint8_t CRC8(uint32_t SPI_data)
+{
+	uint64_t mask = MAX_UINT64_T - MAX_CRC;
+	uint64_t rem = (uint64_t)((((uint64_t)SPI_data) | (((uint64_t)CRC_SEED) << MSG_LEN)) & mask);
+	uint64_t divider = ((uint64_t)CRC_POLY) << (MSG_LEN - 1);
+
+	for (uint16_t i = MSG_LEN + CRC_LEN; i > 0; i--) //32 = 4*8
+	{
+		if (((rem >> (i - 1)) & 0x01) != 0)
+		{
+			rem ^= divider;
+		}
+		divider >>= 1;
+		if ((rem & mask) == 0) //end of calc
+		{
+			break;
+		}
+	}
+	// Return 8-bit CRC calculated
+	return (uint8_t)(rem & MAX_CRC);
 }
