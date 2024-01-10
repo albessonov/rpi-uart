@@ -41,6 +41,8 @@ size_t len = 0;
 ssize_t readstat;
 const char path1[]="/home/albessonov/accelerometer/ACC_X_05.txt";
 const char path2[]="/home/albessonov/accelerometer/ACC_Y_05.txt";
+const char path1N[]="/home/albessonov/accelerometer/ACC_X_05.txt";
+const char path2N[]="/home/albessonov/accelerometer/ACC_X_05.txt";
 uint8_t RCOMMAND0x00=0b10000100;
 uint8_t RCOMMAND0x01=0b11000100;
 uint8_t RCOMMAND0x02=0b10100100;

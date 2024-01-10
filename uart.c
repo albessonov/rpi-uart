@@ -13,7 +13,7 @@
 int main (void)
 {
 double Num;
-
+float timeX=-100,timeY=-100;
 unsigned uart1=serialOpen("/dev/ttyAMA0",921600);
 
 struct Register_Access_Command Register_Read={REGISTER_READ_COMMAND,REGISTER_READ_ADDRESS,REGISTER_READ_DATA,0b00000000};
@@ -63,6 +63,7 @@ fp0x2 = fopen(path2, "r");
 	  printf("Error Y");
 while(1)
 {
+if(ctr0<0&&ctr2<0) break;
     memset(RXbuf, 0, UART_INPUT_MAX_SIZE);// clean the buf for next reception
     if(serialDataAvail (uart1)!=-1)
     read(uart1,RXbuf,4);
@@ -81,25 +82,12 @@ else if(memcmp(RXbuf,Register_Write_cmd,sizeof(Register_Write_cmd))==0)
 else if(memcmp(RXbuf,Request0x0cmd,sizeof(Request0x0cmd))==0)
      {
 		 uint8_t valH,valL;
-		 if(numend0<=10)
-	     {
-			 fseek(fp0x0,0,0);
-			 ctr0=0;
-			 mov0=0;
-		 }//returns the pointer to start of the reading to the beginning of the file in case of EOF is reached
-	     printf("X:%d\n",fseek(fp0x0,mov0,1));
+	     fseek(fp0x0,ctr0,0);
 	     readstat = getline(&line, &len, fp0x0);
 	     ach0=strchr (line,' ');
-	     //circular reading
-	     end0=strchr (line,'/')+1;
-	     numend0=end0-line+1;
 	     mov0=(ach0-line+1);
 		 Num = atof (line);
-         printf("%f\n",Num);
 	     int16_t val=round(20.47*Num);
-             //Num=Num*20.47;
-             //int16_t val2=Num;
-	     //printf("%d  %d\r\n", val, val2);
 	     if(val>=0)
 	     {
           valL = (uint8_t) ((val<<4) & 0x00ff);
@@ -117,28 +105,18 @@ else if(memcmp(RXbuf,Request0x0cmd,sizeof(Request0x0cmd))==0)
          resp[3]=CRC8((((uint32_t)resp[0])<<24)|(((uint32_t)resp[1])<<16)|(((uint32_t)resp[2])<<8));
 	     write(uart1, resp, sizeof(resp));
          ctr0+=mov0;
-         //printf("%ld\n%ld\n",ctr0,numend0);
-
+         printf("%f\n",timeX);
+         timeX+=0.5;
 	 }
-else if(memcmp(RXbuf,Request0x1cmd,sizeof(Request0x1cmd))==0)
+/*else if(memcmp(RXbuf,Request0x1cmd,sizeof(Request0x1cmd))==0)
      {
 	  uint8_t valH,valL;
-	  if(numend1<=10)
-	     {
-			 /*fseek(fp0x0,0,0);
-			 ctr1=0;
-			 mov1=0;*/
-			 printf("EOF reached");
-			 exit(0);
-		 }
-	  fseek(fp0x0,mov1,1);
+	  fseek(fp0x0,ctr1,0);
 	  readstat = getline(&line, &len, fp0x0);
 	  ach1=strchr(line,' ');
-	  end1=strchr (line,'/')+1;
-      numend1=end1-line+1;
 	  mov1=ach1-line+1;
       Num = atof (line);
-      int16_t val=20.47*Num;
+      int16_t val=round(20.47*Num);
       if(val>=0)
 	     {
           valL = (uint8_t) ((val<<4) & 0x00ff);
@@ -155,25 +133,17 @@ else if(memcmp(RXbuf,Request0x1cmd,sizeof(Request0x1cmd))==0)
       resp[2]=(valL<<2);
       resp[3]=CRC8((((uint32_t)resp[0])<<24)|(((uint32_t)resp[1])<<16)|(((uint32_t)resp[2])<<8));
       write(uart1, resp, sizeof(resp));
-      //ctr1+=mov1;
-	 }
+      ctr1+=mov1;
+	 }*/
 else if(memcmp(RXbuf,Request0x2cmd,sizeof(Request0x2cmd))==0)
      {
 	  uint8_t valH,valL;
-	  if(numend2<=10)
-	     {
-			 fseek(fp0x2,0,0);
-			 ctr2=0;
-			 mov2=0;
-		 }
-	  fseek(fp0x2,mov2,1);
+	  fseek(fp0x2,ctr2,0);
 	  readstat = getline(&line, &len, fp0x2);
 	  ach2=strchr (line,' ');
-	  end2=strchr (line,'/')+1;
-      numend2=end2-line+1;
 	  mov2=ach2-line+1;
       Num = atof (line);
-	  int16_t val=20.47*Num;
+	  int16_t val=round(20.47*Num);
       if(val>=0)
 	     {
           valL = (uint8_t) ((val<<4) & 0x00ff);
@@ -190,19 +160,13 @@ else if(memcmp(RXbuf,Request0x2cmd,sizeof(Request0x2cmd))==0)
       resp[2]=(valL<<2);
       resp[3]=CRC8((((uint32_t)resp[0])<<24)|(((uint32_t)resp[1])<<16)|(((uint32_t)resp[2])<<8));
       write(uart1, resp, sizeof(resp));
-      //ctr2+=mov2;
-      //printf("%ld\n%ld\n",ctr2,numend2);
-
+      ctr2+=mov2;
+      printf("%f\n",timeY);
+      timeY+=0.5;
      }
-else if(memcmp(RXbuf,Request0x3cmd,sizeof(Request0x3cmd))==0)
+/*else if(memcmp(RXbuf,Request0x3cmd,sizeof(Request0x3cmd))==0)
      {
 	  uint8_t valH,valL;
-	  if(numend3<=10)
-	     {
-			 fseek(fp0x1,0,0);
-			 ctr3=0;
-			 mov3=0;
-		 }
 	  fseek(fp0x1,mov3,1);
 	  readstat = getline(&line, &len, fp0x1);
 	  ach3=strchr (line,' ');
@@ -210,7 +174,7 @@ else if(memcmp(RXbuf,Request0x3cmd,sizeof(Request0x3cmd))==0)
       numend3=end3-line+1;
 	  mov3=ach3-line+1;
       Num = atof (line);
-	  int16_t val=20.47*Num;
+	  int16_t val=round(20.47*Num);
       if(val>=0)
 	     {
           valL = (uint8_t) ((val<<4) & 0x00ff);
@@ -227,8 +191,8 @@ else if(memcmp(RXbuf,Request0x3cmd,sizeof(Request0x3cmd))==0)
       resp[2]=(valL<<2);
       resp[3]=CRC8((((uint32_t)resp[0])<<24)|(((uint32_t)resp[1])<<16)|(((uint32_t)resp[2])<<8));
       write(uart1, resp, sizeof(resp));
-      //ctr3+=mov3;
-	 }
+      ctr3+=mov3;
+	 }*/
 }
 }
 
